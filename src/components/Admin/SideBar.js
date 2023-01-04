@@ -15,8 +15,12 @@ import { GiReactor } from 'react-icons/gi'
 
 import { BsGem } from 'react-icons/bs'
 import { GiBank } from 'react-icons/gi'
+
+import { useNavigate } from 'react-router-dom';
+
 const SideBar = (props) => {
     const { image, collapsed, toggled, handleToggleSidebar } = props;
+    const navigate = useNavigate();
     return (
         <>
             <ProSidebar
@@ -40,7 +44,7 @@ const SideBar = (props) => {
                         }}
                     >
                         <GiReactor size={'2em'} color={'00bff'} />
-                        <span className='lgcb'>CB
+                        <span className='lgcb' onClick={() => { navigate('/') }}>CB
 
                         </span>
                     </div>

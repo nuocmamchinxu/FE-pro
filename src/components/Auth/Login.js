@@ -3,19 +3,25 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { postLogin } from '../../services/apiServices';
 import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { doLogin } from '../../redux/action/useAction';
+import { ImSpinner4 } from "react-icons/im"
 const Login = (props) => {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const validateEmail = (email) => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+    };
     const handleLogin = async () => {
         // validate 
-        const validateEmail = (email) => {
-            return String(email)
-                .toLowerCase()
-                .match(
-                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                );
-        };
-        // submit api
+
         const isValidEmail = validateEmail(email);
         if (!isValidEmail) {
 
@@ -26,10 +32,16 @@ const Login = (props) => {
             toast.error('invalid password')
             return;
         }
+        setIsLoading(true);
 
+        // submit api
         let data = await postLogin(email, password);
         if (data && +data.EC === 0) {
+            dispatch(
+                doLogin(data)
+            )
             toast.success(data.EM)
+            setIsLoading(false);
             navigate('/')
 
 
@@ -37,10 +49,11 @@ const Login = (props) => {
         }
         if (data && +data.EC !== 0) {
             toast.error(data.EM);
+            setIsLoading(false);
         }
 
     }
-    const navigate = useNavigate();
+
     return (
         <div className="login-container">
             <div className='header'>
@@ -81,7 +94,12 @@ const Login = (props) => {
                 <div>    <button
                     className='btn-login'
                     onClick={() => handleLogin()}
-                >Login</button></div>
+                    disabled={isLoading}
+
+                >
+                    {isLoading === true &&
+                        <ImSpinner4 className="loader-icon" />}
+                    <span>Login</span></button></div>
                 <span onClick={() => { navigate('/') }} className="back text-center"> 	&#60; 	&#60; Go to Home Page</span>
             </div>
         </div>
